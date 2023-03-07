@@ -1,0 +1,169 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct _btnode{
+    int item;
+    struct _btnode* left;
+    struct _btnode* right;
+}BTNode;
+
+typedef struct _listnode{
+    BTNode* node;
+    struct _listnode* next;
+}ListNode;
+
+typedef ListNode StackNode;
+typedef ListNode QueueNode;
+
+typedef struct _stack{
+    int size;
+    StackNode* head; 
+}Stack;
+
+typedef struct _queue{
+    int size;
+    QueueNode* head;
+    QueueNode* tail;
+}Queue;
+
+BTNode* peek(Stack s){
+    return s.head->root;
+}
+
+void push(Stack* sPtr, BTNode* node){
+    StackNode* newNode;
+    newNode = malloc(sizeof(StackNode));
+    newNode->node = node;
+    newNode->next = sPtr->head;
+
+    sPtr->head = newNode;
+    sPtr->size++;
+}
+
+int pop(Stack* sPtr){
+    if(sPtr==NULL || sPtr->head==NULL){
+        return 0;
+    }else{
+        BTNode* temp = sPtr->head;
+        sPtr->head = sPtr->head->next;
+        free(temp);
+        sPtr->size--;
+        return 1;
+    }
+}
+
+int isEmptyStack(Stack s){
+    if(s.size==0)   return 1;
+    return 0;
+}
+
+BTNode* getFront(Queue q){
+    return q.head->node;
+}
+
+void enqueue(Queue *qPtr, BTNode node){
+    QueueNode* newNode;
+    newNode = malloc(sizeof(QueueNode));
+    newNode->node = node;
+    newNode->next = NULL;
+
+    if(isEmptyQueue(*qPtr))
+        qPtr->head = newNode;
+    else
+        qPtr->tail->next = newNode;
+    qPtr->tail = newNode;
+    qPtr->size++;
+}
+
+int dequeue(Queue *qPtr){
+    if(qPtr==NULL||qPtr->head==NULL){
+        return 0;
+    }else{
+        BTNode* temp = qPtr->head;
+        qPtr->head = qPtr->head->next;
+        if(qPtr->head==NULL)
+            qPtr->tail = NULL;
+        free(temp);
+        qPtr->size--;
+        return 1;
+    }
+}
+
+int isEmptyQueue(Queue q){
+    if(q.size==0)   return 1;
+    return 0;
+}
+
+void pre(BTNode* root){
+    if(root==NULL)  return;
+
+    printf("%d\n", root->item);
+    pre(root->left);
+    pre(root->right);
+}
+
+void in(BTNode* root){
+    if(root==NULL)  return;
+
+    in(root->left);
+    printf("%d\n", root->item);
+    in(root->right);
+}
+
+void post(BTNode* root){
+    if(root==NULL)  return;
+
+    post(root->left);
+    post(root->right);
+    printf("%d\n", root->item);
+}
+
+void BFT(BTNode* root){
+    Queue* q;
+    BTNode* node;
+    if(root){
+        enqueue(q, root);
+        while(!isEmptyQueue(*q)){
+            node = getFront(*q); dequeue(q);
+            if(node->left)  enqueue(q, node->left);
+            if(node->right) enqueue(q, node->right);
+        }
+    }
+}
+
+int countNode(BTNode* root){
+    if(root==NULL)  return 0;
+    return ((countNode(root->left)) + 1 + countNode(root->right));
+}
+
+int TreeTraversal(BTNode* cur){
+    if(cur==NULL)   return -1;
+    
+    int l = TreeTraversal(cur->left);
+    int r = TreeTraversal(cur->right);
+    int c = (l > r ? l : r) + 1;
+    return c;
+}
+
+BTNode* findBSTNode(BTNode* cur, int i){
+    if(cur==NULL)   return;
+    if(i==cur->item) return cur;
+    if(i<cur->item) return findBSTNode(cur->left, i);
+    if(i>cur->item) return findBSTNode(cur->right, i);
+}
+
+BTNode* insertBSTNode(BTNode* cur, int i){
+    if(cur==NULL){
+    BTNode* node = (BTNode *)malloc(sizeof(BTNode));
+    node->item = i;
+    node->left=node->right=NULL;
+    return node;
+    }
+    if(i<cur->item){
+        cur->left = insertBSTNode(cur->left, i);
+    }else if(i>cur->item){
+        cur->right = insertBSTNode(cur->right, i);
+    }
+    return cur;
+
+}
